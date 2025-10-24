@@ -2,13 +2,8 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
-import { Video } from '@google/genai';
-
-export interface TranscriptEntry {
-  source: 'user' | 'model';
-  text: string;
-  isFinal: boolean;
-}
+// FIX: Added import for Video type used in GenerateVideoParams.
+import {Video} from '@google/genai';
 
 export interface ChatMessage {
   role: 'user' | 'model';
@@ -17,7 +12,19 @@ export interface ChatMessage {
   isLanguageSelector?: boolean;
 }
 
-// FIX: Add missing type definitions for video generation.
+// FIX: Added missing TranscriptEntry type for LiveConversation component.
+export interface TranscriptEntry {
+  source: 'user' | 'model';
+  text: string;
+  isFinal: boolean;
+}
+
+// FIX: Added missing types for PromptForm component.
+export enum VeoModel {
+  VEO = 'veo-3.1-generate-preview',
+  VEO_FAST = 'veo-3.1-fast-generate-preview',
+}
+
 export enum AspectRatio {
   LANDSCAPE = '16:9',
   PORTRAIT = '9:16',
@@ -28,16 +35,11 @@ export enum Resolution {
   P1080 = '1080p',
 }
 
-export enum VeoModel {
-  VEO_FAST = 'veo-3.1-fast-generate-preview',
-  VEO = 'veo-3.1-generate-preview',
-}
-
 export enum GenerationMode {
-  TEXT_TO_VIDEO = 'Text-to-Video',
-  FRAMES_TO_VIDEO = 'Frames-to-Video',
-  REFERENCES_TO_VIDEO = 'References-to-Video',
-  EXTEND_VIDEO = 'Extend-Video',
+  TEXT_TO_VIDEO = 'Text to Video',
+  FRAMES_TO_VIDEO = 'Frames to Video',
+  REFERENCES_TO_VIDEO = 'References to Video',
+  EXTEND_VIDEO = 'Extend Video',
 }
 
 export interface ImageFile {

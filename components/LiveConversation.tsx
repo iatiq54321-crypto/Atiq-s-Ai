@@ -113,19 +113,15 @@ const LiveConversation: React.FC<LiveConversationProps> = () => {
     setTranscript([]);
     nextStartTimeRef.current = 0;
 
-    // FIX: Use process.env.API_KEY as per the guidelines to resolve TypeScript errors.
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) {
-      setErrorMessage("API Key not found. Please check your environment variables.");
-      setConversationState('error');
-      return;
-    }
+    // FIX: Per guidelines, API key is assumed to be available via process.env.API_KEY.
+    // The application should not check for it.
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({audio: true});
       mediaStreamRef.current = stream;
 
-      const ai = new GoogleGenAI({apiKey});
+      // FIX: Use `process.env.API_KEY` directly as per guidelines.
+      const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
       
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       inputAudioContextRef.current = new AudioContext({sampleRate: 16000});
@@ -203,7 +199,6 @@ const LiveConversation: React.FC<LiveConversationProps> = () => {
           onerror: (e: ErrorEvent) => {
             console.error('Session error:', e);
             const errorMessage = e.message || 'An unknown error occurred.';
-            // FIX: Handle API key errors directly instead of calling onApiKeyError.
             if (
               errorMessage.includes('API key not valid') ||
               errorMessage.includes('API_KEY_INVALID') ||
