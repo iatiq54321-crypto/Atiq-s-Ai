@@ -1,6 +1,6 @@
 {
-  "name": "Atiq's Ai",
-  "description": "Atiq's Ai: Have real-time voice conversations, generate images, and chat with Gemini.",
+  "name": "Atiq's AI App",
+  "description": "Atiq's AI App: Have real-time voice conversations, generate images, and chat with Gemini.",
   "requestFramePermissions": [
     "microphone"
   ],

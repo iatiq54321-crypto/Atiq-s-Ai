@@ -1,17 +1,23 @@
 {
-  "short_name": "Atiq's Ai",
-  "name": "Atiq's Ai",
+  "short_name": "Atiq's AI",
+  "name": "Atiq's AI App",
   "icons": [
     {
-      "src": "/vite.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "/vite.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
       "purpose": "maskable"
     }
   ],
