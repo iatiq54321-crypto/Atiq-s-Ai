@@ -10,6 +10,7 @@ import {
 export const generateImage = async (prompt: string): Promise<string> => {
   console.log('Starting image generation with prompt:', prompt);
   
+  // FIX: Use process.env.API_KEY as per the guidelines to resolve TypeScript errors.
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
     throw new Error("API Key not found. Please check your environment variables.");

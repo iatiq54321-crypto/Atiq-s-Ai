@@ -60,7 +60,7 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
   ) => {
     if (!firstMessageRef.current) return;
 
-    // FIX: Use process.env.API_KEY
+    // FIX: Use process.env.API_KEY as per the guidelines to resolve TypeScript errors.
     const apiKey = process.env.API_KEY;
     if (!apiKey) {
       setError(
@@ -198,6 +198,7 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
 
     if (!chatRef.current) {
       // This can happen if the API key was missing during language selection
+      // FIX: Use process.env.API_KEY as per the guidelines to resolve TypeScript errors.
       if (!process.env.API_KEY) {
         setError(
           'API Key not found. Please check your environment variables.',

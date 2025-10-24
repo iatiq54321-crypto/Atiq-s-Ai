@@ -113,7 +113,7 @@ const LiveConversation: React.FC<LiveConversationProps> = () => {
     setTranscript([]);
     nextStartTimeRef.current = 0;
 
-    // FIX: Use process.env.API_KEY.
+    // FIX: Use process.env.API_KEY as per the guidelines to resolve TypeScript errors.
     const apiKey = process.env.API_KEY;
     if (!apiKey) {
       setErrorMessage("API Key not found. Please check your environment variables.");
