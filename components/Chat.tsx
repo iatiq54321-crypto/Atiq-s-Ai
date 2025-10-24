@@ -36,7 +36,7 @@ const ChatComponent: React.FC = () => {
     // Remove the language selector message from the UI
     setMessages((prev) => prev.filter((msg) => !msg.isLanguageSelector));
 
-    const API_KEY = process.env.API_KEY;
+    const API_KEY = import.meta.env.VITE_API_KEY;
     if (!API_KEY) {
       setError('API key is missing.');
       setIsLoading(false);

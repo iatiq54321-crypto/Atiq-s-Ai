@@ -45,10 +45,9 @@ const App: React.FC = () => {
   return (
     <div className="h-screen bg-black text-gray-200 flex flex-col font-sans overflow-hidden">
       <header className="py-4 px-8 relative z-10 flex justify-between items-center border-b border-gray-800">
-        <div className="flex items-center gap-3">
-          <img src="/logo.jpg" alt="Atiq's AI App Logo" className="h-10 w-10 rounded-full" />
-          <h1 className="text-2xl font-semibold tracking-wide bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-            Atiq's AI App
+        <div className="flex items-center">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 text-transparent bg-clip-text">
+            Atiq's Ai
           </h1>
         </div>
         <div className="flex items-center gap-2 p-1 bg-gray-900 rounded-lg">

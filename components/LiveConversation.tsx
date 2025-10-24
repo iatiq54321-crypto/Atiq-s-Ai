@@ -108,8 +108,8 @@ const LiveConversation: React.FC = () => {
   }, []);
 
   const startConversation = useCallback(async () => {
-    // FIX: Get API_KEY from process.env inside the function.
-    const API_KEY = process.env.API_KEY;
+    // FIX: Get API_KEY from Vite's env variables.
+    const API_KEY = import.meta.env.VITE_API_KEY;
     if (!API_KEY) {
       setErrorMessage(
         // FIX: Updated error message to be more generic.

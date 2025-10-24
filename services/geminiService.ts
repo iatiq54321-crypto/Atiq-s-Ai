@@ -9,7 +9,7 @@ import {
 export const generateImage = async (prompt: string): Promise<string> => {
   console.log('Starting image generation with prompt:', prompt);
   
-  const API_KEY = process.env.API_KEY;
+  const API_KEY = import.meta.env.VITE_API_KEY;
 
   if (!API_KEY) {
     throw new Error('API key is missing.');
