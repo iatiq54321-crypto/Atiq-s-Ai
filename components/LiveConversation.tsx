@@ -20,8 +20,8 @@ type ConversationState =
   | 'speaking'
   | 'error';
 
-// FIX: Switched from import.meta.env to process.env and moved inside the function.
-// const API_KEY = import.meta.env.VITE_API_KEY;
+// FIX: Access the API key from environment variables as per guidelines.
+const API_KEY = process.env.API_KEY;
 
 const statusMessages: Record<ConversationState, string> = {
   idle: 'Tap the mic to start the conversation',
@@ -113,12 +113,19 @@ const LiveConversation: React.FC = () => {
     setTranscript([]);
     nextStartTimeRef.current = 0;
 
+    // FIX: Add explicit check for the API key and provide a helpful error message.
+    if (!API_KEY) {
+      setErrorMessage("API Key not found. Please ensure the API_KEY environment variable is set.");
+      setConversationState('error');
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({audio: true});
       mediaStreamRef.current = stream;
 
-      // FIX: Use process.env.API_KEY directly as per guidelines.
-      const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
+      // FIX: Use the API_KEY from process.env
+      const ai = new GoogleGenAI({apiKey: API_KEY});
       
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       inputAudioContextRef.current = new AudioContext({sampleRate: 16000});
