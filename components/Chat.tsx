@@ -93,26 +93,12 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
 
     // Send the stored first message
     try {
-      const stream = await chatRef.current.sendMessageStream({
-        message: firstMessageRef.current,
+      const response = await chatRef.current.sendMessage({
+        message: firstMessageRef.current!,
       });
+      const modelResponseText = response.text;
+      setMessages((prev) => [...prev, { role: 'model', text: modelResponseText }]);
 
-      let modelResponseText = '';
-      setMessages((prev) => [...prev, { role: 'model', text: '' }]);
-
-      for await (const chunk of stream) {
-        if (chunk.text) {
-          modelResponseText += chunk.text;
-          setMessages((prev) => {
-            const newMessages = [...prev];
-            newMessages[newMessages.length - 1] = {
-              role: 'model',
-              text: modelResponseText,
-            };
-            return newMessages;
-          });
-        }
-      }
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'An unknown error occurred.';
@@ -268,39 +254,21 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
     } else {
       // Standard chat logic
       try {
-        const stream = await chatRef.current.sendMessageStream({
+        const response = await chatRef.current.sendMessage({
           message: currentInput,
         });
 
-        let modelResponseText = '';
-        setMessages((prev) => [...prev, { role: 'model', text: '' }]);
-        let triggered = false;
+        let modelResponseText = response.text;
+        const timeoutTrigger = '[TIMEOUT_TRIGGER]';
 
-        for await (const chunk of stream) {
-          if (chunk.text) {
-            modelResponseText += chunk.text;
-            const timeoutTrigger = '[TIMEOUT_TRIGGER]';
-
-            if (!triggered && modelResponseText.includes(timeoutTrigger)) {
-              triggered = true;
-              setIsTimedOut(true);
-              setTimeoutUntil(Date.now() + 3 * 60 * 1000); // 3 minutes
-            }
-
-            const displayMessage = triggered
-              ? modelResponseText.replace(timeoutTrigger, '').trim()
-              : modelResponseText;
-
-            setMessages((prev) => {
-              const newMessages = [...prev];
-              newMessages[newMessages.length - 1] = {
-                role: 'model',
-                text: displayMessage,
-              };
-              return newMessages;
-            });
-          }
+        if (modelResponseText.includes(timeoutTrigger)) {
+          setIsTimedOut(true);
+          setTimeoutUntil(Date.now() + 3 * 60 * 1000); // 3 minutes
+          modelResponseText = modelResponseText.replace(timeoutTrigger, '').trim();
         }
+
+        setMessages((prev) => [...prev, { role: 'model', text: modelResponseText }]);
+
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'An unknown error occurred.';
