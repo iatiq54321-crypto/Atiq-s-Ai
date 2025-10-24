@@ -6,10 +6,11 @@ import {
   GoogleGenAI,
 } from '@google/genai';
 
+// FIX: Remove apiKey parameter and use process.env.API_KEY as per guidelines.
 export const generateImage = async (prompt: string): Promise<string> => {
   console.log('Starting image generation with prompt:', prompt);
   
-  // FIX: Per guidelines, use `process.env.API_KEY` directly and assume it's available.
+  // FIX: Initialize with API key from environment variables.
   const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
 
   try {
@@ -60,9 +61,7 @@ export const generateImage = async (prompt: string): Promise<string> => {
         // It wasn't a JSON string, so we'll proceed with the original message.
       }
     }
-
-    // Per user request to remove restrictions, we'll provide a more neutral
-    // message for safety-related blocks instead of showing Google's policy message.
+    
     const safetyKeywords = [
       'sensitive words',
       'Responsible AI practices',

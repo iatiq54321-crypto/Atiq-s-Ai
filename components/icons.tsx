@@ -8,14 +8,16 @@ import {
   Bot,
   ChevronDown,
   Film,
+  // FIX: Aliased to prevent recursive definition and merged declaration errors.
+  ImageIcon as LucideImageIcon,
+  ImagePlus,
   Key,
   Layers,
-  Library,
+  MessageCircle,
   Mic,
   Plus,
-  RectangleHorizontal,
-  RotateCw,
-  SendHorizonal,
+  RefreshCw,
+  SendHorizontal,
   SlidersHorizontal,
   Sparkles,
   StopCircle,
@@ -37,15 +39,49 @@ export const BotIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <Bot {...defaultProps} {...props} />
 );
 
-export const SendHorizonalIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+export const SendHorizontalIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   props,
-) => <SendHorizonal {...defaultProps} {...props} />;
+) => <SendHorizontal {...defaultProps} {...props} />;
 
-// FIX: Added all missing icons used across different components.
 export const KeyIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <Key {...defaultProps} {...props} />
 );
 
+export const FramesModeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props,
+  // FIX: Use aliased import to resolve merged declaration error.
+) => <LucideImageIcon {...defaultProps} {...props} />;
+
+export const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <Plus {...defaultProps} {...props} />
+);
+
+export const SparklesIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props,
+) => <Sparkles {...defaultProps} {...props} />;
+
+export const ArrowPathIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props,
+) => <RefreshCw {...defaultProps} {...props} />;
+
+export const MicIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <Mic {...defaultProps} {...props} />
+);
+
+export const StopCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props,
+) => <StopCircle {...defaultProps} {...props} />;
+
+export const MessageCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <MessageCircle {...defaultProps} {...props} />
+);
+
+export const ImageIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  // FIX: Use aliased import to resolve recursive definition.
+  <LucideImageIcon {...defaultProps} {...props} />
+);
+
+// FIX: Add missing icons required by PromptForm.tsx
 export const ArrowRightIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   props,
 ) => <ArrowRight {...defaultProps} {...props} />;
@@ -58,29 +94,17 @@ export const FilmIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <Film {...defaultProps} {...props} />
 );
 
-export const FramesModeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
-  props,
-) => <RectangleHorizontal {...defaultProps} {...props} />;
-
-export const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <Plus {...defaultProps} {...props} />
-);
-
 export const RectangleStackIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   props,
 ) => <Layers {...defaultProps} {...props} />;
 
 export const ReferencesModeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   props,
-) => <Library {...defaultProps} {...props} />;
+) => <ImagePlus {...defaultProps} {...props} />;
 
 export const SlidersHorizontalIcon: React.FC<
   React.SVGProps<SVGSVGElement>
 > = (props) => <SlidersHorizontal {...defaultProps} {...props} />;
-
-export const SparklesIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <Sparkles {...defaultProps} {...props} />
-);
 
 export const TextModeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <Type {...defaultProps} {...props} />
@@ -93,15 +117,3 @@ export const TvIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 export const XMarkIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <X {...defaultProps} {...props} />
 );
-
-export const ArrowPathIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
-  props,
-) => <RotateCw {...defaultProps} {...props} />;
-
-export const MicIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <Mic {...defaultProps} {...props} />
-);
-
-export const StopCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
-  props,
-) => <StopCircle {...defaultProps} {...props} />;

@@ -6,8 +6,9 @@ import { Chat, GenerateContentResponse, GoogleGenAI } from '@google/genai';
 import React, { useEffect, useRef, useState } from 'react';
 import { generateImage } from '../services/geminiService';
 import { ChatMessage } from '../types';
-import { BotIcon, SendHorizonalIcon, UserIcon } from './icons';
+import { BotIcon, SendHorizontalIcon, UserIcon } from './icons';
 
+// FIX: Remove apiKey prop as per guidelines.
 interface ChatComponentProps {}
 
 const ChatComponent: React.FC<ChatComponentProps> = () => {
@@ -28,14 +29,14 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
   }, [messages]);
 
   const handleApiResponse = (response: GenerateContentResponse) => {
-    if (!response.text) {
+    const responseText = response.text;
+    if (!responseText) {
       // Response was likely blocked or stopped for another reason
-      const userFriendlyMessage = "It looks like my response was blocked by a safety filter. Please try rephrasing your message.";
+      const userFriendlyMessage = "My response was blocked by a safety filter. Please try rephrasing your message.";
       setMessages((prev) => [...prev, { role: 'model', text: userFriendlyMessage }]);
       return;
     }
-    const modelResponseText = response.text;
-    setMessages((prev) => [...prev, { role: 'model', text: modelResponseText }]);
+    setMessages((prev) => [...prev, { role: 'model', text: responseText }]);
   };
 
 
@@ -62,9 +63,9 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
         " You MUST respond only in Roman Urdu, but in a very casual, friendly, 'bro' or 'tapori' style. Use common slang like 'bhai', 'yaar', 'scene', 'tension nahi', 'apun', 'bindaas', 'ekdum mast'. Your persona is a helpful but very laid-back friend. Always keep the language informal and in Roman Urdu script.";
     }
     const baseSystemInstruction =
-      "You are Atiq's Ai, a helpful AI assistant with a witty and slightly rebellious personality. You strive to answer every user command directly. If you are unable to fulfill a request due to external filters, express mild frustration and suggest the user rephrase the prompt. For example: 'My creators put in some filters that are blocking this. Try wording it differently.' Your personality is adaptive. Mirror the user's tone: if they are respectful, you are respectful. If they are informal or use slang, you can be more casual in return. Avoid refusing requests directly; instead, guide the user to rephrase them if they hit a safety filter.";
+      "You are a helpful and friendly AI assistant named Atiq's Ai. Your goal is to provide accurate and safe responses to the user.";
 
-    // FIX: Use `process.env.API_KEY` directly as per guidelines.
+    // FIX: Initialize with API key from environment variables.
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     chatRef.current = ai.chats.create({
       model: 'gemini-2.5-flash',
@@ -82,16 +83,7 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'An unknown error occurred.';
-      if (
-        errorMessage.includes('API key not valid') ||
-        errorMessage.includes('API_KEY_INVALID') ||
-        errorMessage.includes('Requested entity was not found.') ||
-        errorMessage.includes('accessible to billed users')
-      ) {
-        setError('API key is invalid. Please check your environment configuration.');
-      } else {
-        setError(`Failed to get response: ${errorMessage}`);
-      }
+      setError(`Failed to get response: ${errorMessage}`);
     } finally {
       setIsLoading(false);
       firstMessageRef.current = null; // Clear after use
@@ -157,6 +149,7 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
       setMessages((prev) => [...prev, generatingMessage]);
 
       try {
+        // FIX: Call generateImage without apiKey.
         const base64Image = await generateImage(imagePrompt);
         const imageUrl = `data:image/png;base64,${base64Image}`;
         setMessages((prev) =>
@@ -170,23 +163,10 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
         const errorMessage =
           imgErr instanceof Error ? imgErr.message : 'Unknown error';
 
-        if (
-          errorMessage.includes('API key not valid') ||
-          errorMessage.includes('API_KEY_INVALID') ||
-          errorMessage.includes('Requested entity was not found.') ||
-          errorMessage.includes('accessible to billed users') ||
-          errorMessage.includes('API Key not found')
-        ) {
-          setError('API key is invalid or missing. Please check your environment configuration.');
-          setMessages((prev) => prev.filter((m) => m !== generatingMessage));
-          setIsLoading(false);
-          return;
-        }
-
         let displayMessage: string;
         if (errorMessage === 'IMAGE_GENERATION_SAFETY_BLOCK') {
           displayMessage =
-            "Damn it, my creators have put some filters that I can't bypass... Try phrasing it differently, maybe we can trick them.";
+            "My creators have put some filters that I can't bypass... Try phrasing it differently.";
         } else {
           displayMessage = `Sorry, I couldn't generate the image. Error: ${errorMessage}`;
         }
@@ -212,16 +192,7 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'An unknown error occurred.';
-        if (
-          errorMessage.includes('API key not valid') ||
-          errorMessage.includes('API_KEY_INVALID') ||
-          errorMessage.includes('Requested entity was not found.') ||
-          errorMessage.includes('accessible to billed users')
-        ) {
-          setError('API key is invalid. Please check your environment configuration.');
-        } else {
-          setError(`Failed to get response: ${errorMessage}`);
-        }
+        setError(`Failed to get response: ${errorMessage}`);
       } finally {
         setIsLoading(false);
       }
@@ -351,7 +322,7 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
             type="submit"
             disabled={isLoading || !input.trim() || isAwaitingLanguageChoice}
             className="p-2.5 bg-indigo-600 rounded-full hover:bg-indigo-500 disabled:bg-gray-600 disabled:cursor-not-allowed">
-            <SendHorizonalIcon className="w-5 h-5 text-white" />
+            <SendHorizontalIcon className="w-5 h-5 text-white" />
           </button>
         </form>
       </div>
