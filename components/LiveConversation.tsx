@@ -20,9 +20,6 @@ type ConversationState =
   | 'speaking'
   | 'error';
 
-// FIX: Access the API key from environment variables as per guidelines.
-const API_KEY = process.env.API_KEY;
-
 const statusMessages: Record<ConversationState, string> = {
   idle: 'Tap the mic to start the conversation',
   connecting: 'Connecting to Gemini...',
@@ -33,9 +30,10 @@ const statusMessages: Record<ConversationState, string> = {
 
 interface LiveConversationProps {
   onApiKeyError: () => void;
+  apiKey: string;
 }
 
-const LiveConversation: React.FC<LiveConversationProps> = ({ onApiKeyError }) => {
+const LiveConversation: React.FC<LiveConversationProps> = ({ onApiKeyError, apiKey }) => {
   const [conversationState, setConversationState] =
     useState<ConversationState>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -117,9 +115,8 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ onApiKeyError }) =>
     setTranscript([]);
     nextStartTimeRef.current = 0;
 
-    // FIX: Add explicit check for the API key and provide a helpful error message.
-    if (!API_KEY) {
-      setErrorMessage("API Key not found. Please ensure the API_KEY environment variable is set.");
+    if (!apiKey) {
+      setErrorMessage("API Key not found. Please provide an API key.");
       setConversationState('error');
       return;
     }
@@ -128,8 +125,7 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ onApiKeyError }) =>
       const stream = await navigator.mediaDevices.getUserMedia({audio: true});
       mediaStreamRef.current = stream;
 
-      // FIX: Use the API_KEY from process.env
-      const ai = new GoogleGenAI({apiKey: API_KEY});
+      const ai = new GoogleGenAI({apiKey});
       
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       inputAudioContextRef.current = new AudioContext({sampleRate: 16000});
@@ -208,6 +204,8 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ onApiKeyError }) =>
             console.error('Session error:', e);
             const errorMessage = e.message || 'An unknown error occurred.';
             if (
+              errorMessage.includes('API key not valid') ||
+              errorMessage.includes('API_KEY_INVALID') ||
               errorMessage.includes('Requested entity was not found.') ||
               errorMessage.includes('accessible to billed users')
             ) {
@@ -243,7 +241,7 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ onApiKeyError }) =>
       setErrorMessage(message);
       setConversationState('error');
     }
-  }, [stopConversation, addOrUpdateTranscript, finalizeLastTranscriptEntry, onApiKeyError]);
+  }, [stopConversation, addOrUpdateTranscript, finalizeLastTranscriptEntry, onApiKeyError, apiKey]);
 
   // Cleanup on unmount
   useEffect(() => {

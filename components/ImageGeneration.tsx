@@ -59,9 +59,10 @@ const uiStrings: Record<Language, Record<string, string>> = {
 
 interface ImageGenerationProps {
   onApiKeyError: () => void;
+  apiKey: string;
 }
 
-const ImageGeneration: React.FC<ImageGenerationProps> = ({ onApiKeyError }) => {
+const ImageGeneration: React.FC<ImageGenerationProps> = ({ onApiKeyError, apiKey }) => {
   const [prompt, setPrompt] = useState('');
   const [state, setState] = useState<ImageGenState>(ImageGenState.IDLE);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -79,12 +80,14 @@ const ImageGeneration: React.FC<ImageGenerationProps> = ({ onApiKeyError }) => {
     setImageUrl(null);
 
     try {
-      const base64Image = await generateImage(prompt);
+      const base64Image = await generateImage(prompt, apiKey);
       setImageUrl(`data:image/png;base64,${base64Image}`);
       setState(ImageGenState.SUCCESS);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
       if (
+        errorMessage.includes('API key not valid') ||
+        errorMessage.includes('API_KEY_INVALID') ||
         errorMessage.includes('Requested entity was not found.') ||
         errorMessage.includes('accessible to billed users')
       ) {
