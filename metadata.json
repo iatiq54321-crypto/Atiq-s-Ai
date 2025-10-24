@@ -1,0 +1,8 @@
+{
+  "name": "Atiq's Ai",
+  "description": "Atiq's Ai: Create stunning videos with Veo, have real-time voice conversations, and chat with Gemini.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "prompt": ""
+}
