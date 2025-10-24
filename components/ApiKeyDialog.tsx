@@ -16,9 +16,9 @@ const ApiKeyDialog: React.FC<ApiKeyDialogProps> = ({ onContinue }) => {
         <div className="bg-indigo-600/20 p-4 rounded-full mb-6">
           <KeyIcon className="w-12 h-12 text-indigo-400" />
         </div>
-        <h2 className="text-3xl font-bold text-white mb-4">API Key Required for Veo</h2>
+        <h2 className="text-3xl font-bold text-white mb-4">API Key Required</h2>
         <p className="text-gray-300 mb-6">
-          Veo is a paid-only video generation model. To use this feature, please select an API key associated with a Google Cloud project that has billing enabled.
+          This application requires an API key associated with a Google Cloud project that has billing enabled to use the Gemini API.
         </p>
         <p className="text-gray-400 mb-8 text-sm">
           For more information, see the{' '}
@@ -28,23 +28,15 @@ const ApiKeyDialog: React.FC<ApiKeyDialogProps> = ({ onContinue }) => {
             rel="noopener noreferrer"
             className="text-indigo-400 hover:underline font-medium"
           >
-            how to enable billing
-          </a>{' '}
-          and{' '}
-          <a
-            href="https://ai.google.dev/gemini-api/docs/pricing#veo-3"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-indigo-400 hover:underline font-medium"
-          >
-            Veo pricing
-          </a>.
+            billing documentation
+          </a>
+          .
         </p>
         <button
           onClick={onContinue}
           className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors text-lg"
         >
-          Continue to Select API Key
+          Select API Key
         </button>
       </div>
     </div>

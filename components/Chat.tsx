@@ -11,7 +11,11 @@ import { BotIcon, SendHorizonalIcon, UserIcon } from './icons';
 // FIX: Access the API key from environment variables as per guidelines.
 const API_KEY = process.env.API_KEY;
 
-const ChatComponent: React.FC = () => {
+interface ChatComponentProps {
+  onApiKeyError: () => void;
+}
+
+const ChatComponent: React.FC<ChatComponentProps> = ({ onApiKeyError }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -94,6 +98,10 @@ const ChatComponent: React.FC = () => {
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'An unknown error occurred.';
+      if (errorMessage.includes('Requested entity was not found.')) {
+        onApiKeyError();
+        return;
+      }
       setError(`Failed to get response: ${errorMessage}`);
       // Clean up empty model message bubble on error
       setMessages((prev) => {
@@ -184,10 +192,17 @@ const ChatComponent: React.FC = () => {
           ),
         );
       } catch (imgErr) {
-        let displayMessage: string;
         const errorMessage =
           imgErr instanceof Error ? imgErr.message : 'Unknown error';
+        
+        if (errorMessage.includes('Requested entity was not found.')) {
+            onApiKeyError();
+            setMessages(prev => prev.filter(m => m !== generatingMessage));
+            setIsLoading(false);
+            return;
+        }
 
+        let displayMessage: string;
         if (errorMessage === 'IMAGE_GENERATION_SAFETY_BLOCK') {
           displayMessage =
             "Damn it, my creators have put some filters that I can't bypass... Try phrasing it differently, maybe we can trick them.";
@@ -231,7 +246,11 @@ const ChatComponent: React.FC = () => {
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'An unknown error occurred.';
-        setError(`Failed to get response: ${errorMessage}`);
+        if (errorMessage.includes('Requested entity was not found.')) {
+            onApiKeyError();
+        } else {
+            setError(`Failed to get response: ${errorMessage}`);
+        }
         // Clean up empty model message bubble on error
         setMessages((prev) => {
           if (

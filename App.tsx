@@ -2,14 +2,59 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Chat from './components/Chat';
 import LiveConversation from './components/LiveConversation';
+import ApiKeyDialog from './components/ApiKeyDialog';
 
 type Mode = 'live' | 'chat';
 
+// A simple loading spinner component
+const FullscreenSpinner: React.FC = () => (
+  <div className="h-screen bg-black flex flex-col items-center justify-center text-white">
+    <div className="w-16 h-16 border-4 border-t-transparent border-indigo-500 rounded-full animate-spin"></div>
+    <p className="mt-4 text-gray-400">Initializing...</p>
+  </div>
+);
+
 const App: React.FC = () => {
   const [mode, setMode] = useState<Mode>('chat');
+  const [apiKeySelected, setApiKeySelected] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkApiKey = async () => {
+      try {
+        if (window.aistudio && typeof window.aistudio.hasSelectedApiKey === 'function') {
+          const hasKey = await window.aistudio.hasSelectedApiKey();
+          setApiKeySelected(hasKey);
+        } else {
+          console.warn('window.aistudio.hasSelectedApiKey not found.');
+          setApiKeySelected(false);
+        }
+      } catch (error) {
+        console.error("Error checking for API key:", error);
+        setApiKeySelected(false); // Assume no key on error
+      }
+    };
+    checkApiKey();
+  }, []);
+
+  const handleSelectApiKey = async () => {
+    try {
+      if (window.aistudio && typeof window.aistudio.openSelectKey === 'function') {
+        await window.aistudio.openSelectKey();
+        // Per docs, assume success to handle race condition and update UI immediately.
+        setApiKeySelected(true);
+      }
+    } catch (error) {
+      console.error("Error opening API key selection:", error);
+    }
+  };
+
+  const handleApiKeyError = () => {
+    // This is called from child components when an API call fails due to an invalid key.
+    setApiKeySelected(false);
+  };
 
   const ModeButton: React.FC<{
     current: Mode;
@@ -31,13 +76,21 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (mode) {
       case 'live':
-        return <LiveConversation />;
+        return <LiveConversation onApiKeyError={handleApiKeyError} />;
       case 'chat':
-        return <Chat />;
+        return <Chat onApiKeyError={handleApiKeyError} />;
       default:
         return null;
     }
   };
+
+  if (apiKeySelected === null) {
+    return <FullscreenSpinner />;
+  }
+
+  if (!apiKeySelected) {
+    return <ApiKeyDialog onContinue={handleSelectApiKey} />;
+  }
 
   return (
     <div className="h-screen bg-black text-gray-200 flex flex-col font-sans overflow-hidden">

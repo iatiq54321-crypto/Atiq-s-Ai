@@ -31,7 +31,11 @@ const statusMessages: Record<ConversationState, string> = {
   error: 'An error occurred. Please try again.',
 };
 
-const LiveConversation: React.FC = () => {
+interface LiveConversationProps {
+  onApiKeyError: () => void;
+}
+
+const LiveConversation: React.FC<LiveConversationProps> = ({ onApiKeyError }) => {
   const [conversationState, setConversationState] =
     useState<ConversationState>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -202,8 +206,13 @@ const LiveConversation: React.FC = () => {
           },
           onerror: (e: ErrorEvent) => {
             console.error('Session error:', e);
-            setErrorMessage(e.message || 'An unknown error occurred.');
-            setConversationState('error');
+            const errorMessage = e.message || 'An unknown error occurred.';
+            if (errorMessage.includes('Requested entity was not found.')) {
+              onApiKeyError();
+            } else {
+              setErrorMessage(errorMessage);
+              setConversationState('error');
+            }
             stopConversation();
           },
           onclose: (e: CloseEvent) => {
@@ -231,7 +240,7 @@ const LiveConversation: React.FC = () => {
       setErrorMessage(message);
       setConversationState('error');
     }
-  }, [stopConversation, addOrUpdateTranscript, finalizeLastTranscriptEntry]);
+  }, [stopConversation, addOrUpdateTranscript, finalizeLastTranscriptEntry, onApiKeyError]);
 
   // Cleanup on unmount
   useEffect(() => {
