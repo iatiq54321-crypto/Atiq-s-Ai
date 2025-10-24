@@ -1,6 +1,6 @@
 {
   "name": "Atiq's Ai",
-  "description": "Atiq's Ai: Create stunning videos with Veo, have real-time voice conversations, and chat with Gemini.",
+  "description": "Atiq's Ai: Have real-time voice conversations, generate images, and chat with Gemini.",
   "requestFramePermissions": [
     "microphone"
   ],

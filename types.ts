@@ -2,20 +2,22 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
-import {Video} from '@google/genai';
+import { Video } from '@google/genai';
 
-export enum AppState {
-  IDLE,
-  LOADING,
-  SUCCESS,
-  ERROR,
+export interface TranscriptEntry {
+  source: 'user' | 'model';
+  text: string;
+  isFinal: boolean;
 }
 
-export enum VeoModel {
-  VEO_FAST = 'veo-3.1-fast-generate-preview',
-  VEO = 'veo-3.1-generate-preview',
+export interface ChatMessage {
+  role: 'user' | 'model';
+  text: string;
+  imageUrl?: string;
+  isLanguageSelector?: boolean;
 }
 
+// FIX: Add missing type definitions for video generation.
 export enum AspectRatio {
   LANDSCAPE = '16:9',
   PORTRAIT = '9:16',
@@ -26,11 +28,16 @@ export enum Resolution {
   P1080 = '1080p',
 }
 
+export enum VeoModel {
+  VEO_FAST = 'veo-3.1-fast-generate-preview',
+  VEO = 'veo-3.1-generate-preview',
+}
+
 export enum GenerationMode {
-  TEXT_TO_VIDEO = 'Text to Video',
-  FRAMES_TO_VIDEO = 'Frames to Video',
-  REFERENCES_TO_VIDEO = 'References to Video',
-  EXTEND_VIDEO = 'Extend Video',
+  TEXT_TO_VIDEO = 'Text-to-Video',
+  FRAMES_TO_VIDEO = 'Frames-to-Video',
+  REFERENCES_TO_VIDEO = 'References-to-Video',
+  EXTEND_VIDEO = 'Extend-Video',
 }
 
 export interface ImageFile {
@@ -49,24 +56,11 @@ export interface GenerateVideoParams {
   aspectRatio: AspectRatio;
   resolution: Resolution;
   mode: GenerationMode;
-  startFrame?: ImageFile | null;
-  endFrame?: ImageFile | null;
-  referenceImages?: ImageFile[];
-  styleImage?: ImageFile | null;
-  inputVideo?: VideoFile | null;
-  inputVideoObject?: Video | null;
-  isLooping?: boolean;
-}
-
-export interface TranscriptEntry {
-  source: 'user' | 'model';
-  text: string;
-  isFinal: boolean;
-}
-
-export interface ChatMessage {
-  role: 'user' | 'model';
-  text: string;
-  imageUrl?: string;
-  isLanguageSelector?: boolean;
+  startFrame: ImageFile | null;
+  endFrame: ImageFile | null;
+  referenceImages: ImageFile[];
+  styleImage: ImageFile | null;
+  inputVideo: VideoFile | null;
+  inputVideoObject: Video | null;
+  isLooping: boolean;
 }
