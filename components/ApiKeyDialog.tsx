@@ -11,7 +11,7 @@ interface ApiKeyDialogProps {
 
 const ApiKeyDialog: React.FC<ApiKeyDialogProps> = ({ onContinue }) => {
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] p-4">
       <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-xl max-w-lg w-full p-8 text-center flex flex-col items-center">
         <div className="bg-indigo-600/20 p-4 rounded-full mb-6">
           <KeyIcon className="w-12 h-12 text-indigo-400" />

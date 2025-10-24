@@ -6,8 +6,9 @@ import React, { useState, useEffect } from 'react';
 import Chat from './components/Chat';
 import LiveConversation from './components/LiveConversation';
 import ApiKeyDialog from './components/ApiKeyDialog';
+import ImageGeneration from './components/ImageGeneration';
 
-type Mode = 'live' | 'chat';
+type Mode = 'live' | 'chat' | 'image';
 
 // A simple loading spinner component
 const FullscreenSpinner: React.FC = () => (
@@ -18,7 +19,7 @@ const FullscreenSpinner: React.FC = () => (
 );
 
 const App: React.FC = () => {
-  const [mode, setMode] = useState<Mode>('chat');
+  const [mode, setMode] = useState<Mode>('image');
   const [apiKeySelected, setApiKeySelected] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -79,6 +80,8 @@ const App: React.FC = () => {
         return <LiveConversation onApiKeyError={handleApiKeyError} />;
       case 'chat':
         return <Chat onApiKeyError={handleApiKeyError} />;
+      case 'image':
+        return <ImageGeneration onApiKeyError={handleApiKeyError} />;
       default:
         return null;
     }
@@ -101,6 +104,9 @@ const App: React.FC = () => {
           </h1>
         </div>
         <div className="flex items-center gap-2 p-1 bg-gray-900 rounded-lg">
+          <ModeButton current={mode} target="image" onClick={setMode}>
+            Image
+          </ModeButton>
           <ModeButton current={mode} target="chat" onClick={setMode}>
             Chat
           </ModeButton>

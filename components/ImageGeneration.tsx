@@ -57,8 +57,11 @@ const uiStrings: Record<Language, Record<string, string>> = {
   }
 };
 
+interface ImageGenerationProps {
+  onApiKeyError: () => void;
+}
 
-const ImageGeneration: React.FC = () => {
+const ImageGeneration: React.FC<ImageGenerationProps> = ({ onApiKeyError }) => {
   const [prompt, setPrompt] = useState('');
   const [state, setState] = useState<ImageGenState>(ImageGenState.IDLE);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -81,6 +84,10 @@ const ImageGeneration: React.FC = () => {
       setState(ImageGenState.SUCCESS);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      if (errorMessage.includes('Requested entity was not found.')) {
+        onApiKeyError();
+        return;
+      }
       if (errorMessage === 'IMAGE_GENERATION_SAFETY_BLOCK') {
         setError(T.safetyError);
       } else {
