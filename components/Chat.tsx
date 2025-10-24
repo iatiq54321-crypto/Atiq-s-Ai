@@ -98,7 +98,10 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ onApiKeyError }) => {
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'An unknown error occurred.';
-      if (errorMessage.includes('Requested entity was not found.')) {
+      if (
+        errorMessage.includes('Requested entity was not found.') ||
+        errorMessage.includes('accessible to billed users')
+        ) {
         onApiKeyError();
         return;
       }
@@ -195,7 +198,10 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ onApiKeyError }) => {
         const errorMessage =
           imgErr instanceof Error ? imgErr.message : 'Unknown error';
         
-        if (errorMessage.includes('Requested entity was not found.')) {
+        if (
+            errorMessage.includes('Requested entity was not found.') ||
+            errorMessage.includes('accessible to billed users')
+        ) {
             onApiKeyError();
             setMessages(prev => prev.filter(m => m !== generatingMessage));
             setIsLoading(false);
@@ -246,7 +252,10 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ onApiKeyError }) => {
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'An unknown error occurred.';
-        if (errorMessage.includes('Requested entity was not found.')) {
+        if (
+            errorMessage.includes('Requested entity was not found.') ||
+            errorMessage.includes('accessible to billed users')
+        ) {
             onApiKeyError();
         } else {
             setError(`Failed to get response: ${errorMessage}`);

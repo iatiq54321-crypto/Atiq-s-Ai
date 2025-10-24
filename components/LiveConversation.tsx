@@ -207,7 +207,10 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ onApiKeyError }) =>
           onerror: (e: ErrorEvent) => {
             console.error('Session error:', e);
             const errorMessage = e.message || 'An unknown error occurred.';
-            if (errorMessage.includes('Requested entity was not found.')) {
+            if (
+              errorMessage.includes('Requested entity was not found.') ||
+              errorMessage.includes('accessible to billed users')
+            ) {
               onApiKeyError();
             } else {
               setErrorMessage(errorMessage);

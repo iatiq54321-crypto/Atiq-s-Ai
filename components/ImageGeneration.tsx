@@ -84,7 +84,10 @@ const ImageGeneration: React.FC<ImageGenerationProps> = ({ onApiKeyError }) => {
       setState(ImageGenState.SUCCESS);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-      if (errorMessage.includes('Requested entity was not found.')) {
+      if (
+        errorMessage.includes('Requested entity was not found.') ||
+        errorMessage.includes('accessible to billed users')
+      ) {
         onApiKeyError();
         return;
       }
