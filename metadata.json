@@ -1,6 +1,6 @@
 {
   "name": "Atiq's AI App",
-  "description": "Atiq's AI App: Chat with Gemini and generate images using the /generate command.",
+  "description": "Atiq's AI App: Chat with a mischievous AI that has a bit of an attitude.",
   "requestFramePermissions": [],
   "prompt": ""
 }

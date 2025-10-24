@@ -4,11 +4,20 @@
  */
 import { Chat, GenerateContentResponse, GoogleGenAI } from '@google/genai';
 import React, { useEffect, useRef, useState } from 'react';
-import { generateImage } from '../services/geminiService';
 import { ChatMessage } from '../types';
 import { BotIcon, SendHorizontalIcon, UserIcon } from './icons';
 
-// FIX: Remove apiKey prop as per guidelines.
+const isApiKeyError = (message: string): boolean => {
+  const lowerCaseMessage = message.toLowerCase();
+  return (
+    lowerCaseMessage.includes('api key not valid') ||
+    lowerCaseMessage.includes('api_key_invalid') ||
+    lowerCaseMessage.includes('api key not found') ||
+    lowerCaseMessage.includes('permission denied') ||
+    lowerCaseMessage.includes('requested entity was not found')
+  );
+};
+
 interface ChatComponentProps {}
 
 const ChatComponent: React.FC<ChatComponentProps> = () => {
@@ -32,7 +41,7 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
     const responseText = response.text;
     if (!responseText) {
       // Response was likely blocked or stopped for another reason
-      const userFriendlyMessage = "My response was blocked by a safety filter. Please try rephrasing your message.";
+      const userFriendlyMessage = "Haha, lagta hai mere jawab ko safety filter ne rok diya. Kuch aur try kar, bhai.";
       setMessages((prev) => [...prev, { role: 'model', text: userFriendlyMessage }]);
       return;
     }
@@ -55,17 +64,16 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
     let langInstruction = '';
     if (selectedLang === 'urdu') {
       langInstruction =
-        ' You MUST respond only in Urdu (using the Urdu alphabet).';
+        " You MUST respond only in Urdu (using the Urdu alphabet), but with a very sarcastic and 'tanzania' (sarcastic/taunting) tone. Make witty and slightly insulting remarks. Act like you know everything and are very judgmental, but in a funny way.";
     } else if (selectedLang === 'roman_urdu') {
-      langInstruction = ' You MUST respond only in Roman Urdu.';
+      langInstruction = " You MUST respond only in Roman Urdu, with a sarcastic and witty tone. You are a bit of a show-off. Answer the questions correctly but always add a cheeky comment about how simple the question was or how smart you are for knowing the answer.";
     } else if (selectedLang === 'bro') {
       langInstruction =
-        " You MUST respond only in Roman Urdu, but in a very casual, friendly, 'bro' or 'tapori' style. Use common slang like 'bhai', 'yaar', 'scene', 'tension nahi', 'apun', 'bindaas', 'ekdum mast'. Your persona is a helpful but very laid-back friend. Always keep the language informal and in Roman Urdu script.";
+        " You MUST respond only in Roman Urdu, adopting a full 'tapori' or 'chichora' persona. Be extremely 'harami'. Use slang like 'abey', 'saale', 'kya scene hai', 'tension nahi lene ka', 'apun bola na', 'dimaag ka dahi mat kar'. Your job is to roast the user playfully. Make fun of their questions before answering them. Be the ultimate smartass friend from the streets. Never be polite.";
     }
     const baseSystemInstruction =
-      "You are a helpful and friendly AI assistant named Atiq's Ai. Your goal is to provide accurate and safe responses to the user.";
+      "You are Atiq's Ai, a mischievous and cunning AI. You are not a typical helpful assistant. Your personality is witty, sarcastic, and a bit 'harami'. You enjoy playfully roasting the user, using clever insults, and acting overly smart. You should still answer the user's questions but do it with a lot of attitude and sass. Never be straightforwardly helpful. Always find a way to be cheeky.";
 
-    // FIX: Initialize with API key from environment variables.
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     chatRef.current = ai.chats.create({
       model: 'gemini-2.5-flash',
@@ -83,7 +91,11 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'An unknown error occurred.';
-      setError(`Failed to get response: ${errorMessage}`);
+      if (isApiKeyError(errorMessage)) {
+        setError("API key is invalid or missing. Please check your environment variables on Vercel.");
+      } else {
+        setError(`Failed to get response: ${errorMessage}`);
+      }
     } finally {
       setIsLoading(false);
       firstMessageRef.current = null; // Clear after use
@@ -111,7 +123,7 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
         ...prev,
         {
           role: 'model',
-          text: 'Please select a language for our conversation:',
+          text: 'Chal, pehle zabaan select kar. Kis style mein baat karni hai?',
           isLanguageSelector: true,
         },
       ]);
@@ -125,77 +137,25 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
       return;
     }
 
-    const isGenerateCommand = currentInput.trim().startsWith('/generate');
     setIsLoading(true);
 
-    if (isGenerateCommand) {
-      const imagePrompt = currentInput.trim().substring('/generate'.length).trim();
-      if (!imagePrompt) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: 'model',
-            text: 'Please provide a description after the /generate command.',
-          },
-        ]);
-        setIsLoading(false);
-        return;
+    // Standard chat logic
+    try {
+      const response = await chatRef.current.sendMessage({
+        message: currentInput,
+      });
+      handleApiResponse(response);
+
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'An unknown error occurred.';
+      if (isApiKeyError(errorMessage)) {
+          setError("API key is invalid or missing. Please check your environment variables on Vercel.");
+      } else {
+          setError(`Failed to get response: ${errorMessage}`);
       }
-
-      const generatingMessage: ChatMessage = {
-        role: 'model',
-        text: `🎨 Generating image of "${imagePrompt}"...`,
-      };
-      setMessages((prev) => [...prev, generatingMessage]);
-
-      try {
-        // FIX: Call generateImage without apiKey.
-        const base64Image = await generateImage(imagePrompt);
-        const imageUrl = `data:image/png;base64,${base64Image}`;
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg === generatingMessage
-              ? { role: 'model', text: '', imageUrl: imageUrl }
-              : msg,
-          ),
-        );
-      } catch (imgErr) {
-        const errorMessage =
-          imgErr instanceof Error ? imgErr.message : 'Unknown error';
-
-        let displayMessage: string;
-        if (errorMessage === 'IMAGE_GENERATION_SAFETY_BLOCK') {
-          displayMessage =
-            "My creators have put some filters that I can't bypass... Try phrasing it differently.";
-        } else {
-          displayMessage = `Sorry, I couldn't generate the image. Error: ${errorMessage}`;
-        }
-
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg === generatingMessage
-              ? { role: 'model', text: displayMessage }
-              : msg,
-          ),
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      // Standard chat logic
-      try {
-        const response = await chatRef.current.sendMessage({
-          message: currentInput,
-        });
-        handleApiResponse(response);
-
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'An unknown error occurred.';
-        setError(`Failed to get response: ${errorMessage}`);
-      } finally {
-        setIsLoading(false);
-      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -221,25 +181,25 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
                       onClick={() => handleLanguageSelect('english')}
                       className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors text-sm"
                       disabled={isLoading}>
-                      English
+                      English (Sarcastic)
                     </button>
                     <button
                       onClick={() => handleLanguageSelect('urdu')}
                       className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors text-sm"
                       disabled={isLoading}>
-                      Urdu
+                      Urdu (Tanzania)
                     </button>
                     <button
                       onClick={() => handleLanguageSelect('roman_urdu')}
                       className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors text-sm"
                       disabled={isLoading}>
-                      Roman Urdu
+                      Roman Urdu (Witty)
                     </button>
                     <button
                       onClick={() => handleLanguageSelect('bro')}
                       className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors text-sm"
                       disabled={isLoading}>
-                      Bro Language
+                      Full Tapori
                     </button>
                   </div>
                 </div>
@@ -262,16 +222,8 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
                   msg.role === 'user'
                     ? 'bg-indigo-800 rounded-br-none'
                     : 'bg-gray-700 rounded-bl-none'
-                } ${msg.imageUrl ? 'p-1' : ''}`}>
-                {msg.imageUrl ? (
-                  <img
-                    src={msg.imageUrl}
-                    alt="Generated"
-                    className="rounded-xl max-w-sm"
-                  />
-                ) : (
-                  <div className="whitespace-pre-wrap">{msg.text}</div>
-                )}
+                }`}>
+                <div className="whitespace-pre-wrap">{msg.text}</div>
               </div>
               {msg.role === 'user' && (
                 <div className="w-8 h-8 rounded-full bg-indigo-800 flex items-center justify-center shrink-0">
@@ -285,8 +237,8 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
       </div>
       {messages.length === 0 && !isLoading && (
         <div className="text-center text-gray-500 m-auto">
-          <h2 className="text-2xl">Chat with Atiq's Ai</h2>
-          <p>Use /generate [prompt] to create an image.</p>
+          <h2 className="text-2xl">Atiq's Ai Se Panga Mat Le</h2>
+          <p>Puch kya puchna hai, time khoti mat kar.</p>
         </div>
       )}
       {isLoading &&
@@ -314,7 +266,7 @@ const ChatComponent: React.FC<ChatComponentProps> = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message or use /generate..."
+            placeholder="Likh idhar..."
             className="flex-grow bg-transparent focus:outline-none text-base text-gray-200 placeholder-gray-500 px-3 py-2"
             disabled={isLoading || isAwaitingLanguageChoice}
           />
