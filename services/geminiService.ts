@@ -6,11 +6,13 @@ import {
   GoogleGenAI,
 } from '@google/genai';
 
-export const generateImage = async (prompt: string, apiKey: string): Promise<string> => {
+// FIX: Remove apiKey parameter and use process.env.API_KEY directly.
+export const generateImage = async (prompt: string): Promise<string> => {
   console.log('Starting image generation with prompt:', prompt);
   
+  const apiKey = process.env.API_KEY;
   if (!apiKey) {
-    throw new Error("API Key not found. Please provide an API key.");
+    throw new Error("API Key not found. Please check your environment variables.");
   }
   
   const ai = new GoogleGenAI({apiKey: apiKey});

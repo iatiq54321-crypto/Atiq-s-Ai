@@ -28,12 +28,10 @@ const statusMessages: Record<ConversationState, string> = {
   error: 'An error occurred. Please try again.',
 };
 
-interface LiveConversationProps {
-  onApiKeyError: () => void;
-  apiKey: string;
-}
+// FIX: Remove apiKey and onApiKeyError props.
+interface LiveConversationProps {}
 
-const LiveConversation: React.FC<LiveConversationProps> = ({ onApiKeyError, apiKey }) => {
+const LiveConversation: React.FC<LiveConversationProps> = () => {
   const [conversationState, setConversationState] =
     useState<ConversationState>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -115,8 +113,10 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ onApiKeyError, apiK
     setTranscript([]);
     nextStartTimeRef.current = 0;
 
+    // FIX: Use process.env.API_KEY.
+    const apiKey = process.env.API_KEY;
     if (!apiKey) {
-      setErrorMessage("API Key not found. Please provide an API key.");
+      setErrorMessage("API Key not found. Please check your environment variables.");
       setConversationState('error');
       return;
     }
@@ -203,13 +203,15 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ onApiKeyError, apiK
           onerror: (e: ErrorEvent) => {
             console.error('Session error:', e);
             const errorMessage = e.message || 'An unknown error occurred.';
+            // FIX: Handle API key errors directly instead of calling onApiKeyError.
             if (
               errorMessage.includes('API key not valid') ||
               errorMessage.includes('API_KEY_INVALID') ||
               errorMessage.includes('Requested entity was not found.') ||
               errorMessage.includes('accessible to billed users')
             ) {
-              onApiKeyError();
+              setErrorMessage('API key is invalid. Please check your environment configuration.');
+              setConversationState('error');
             } else {
               setErrorMessage(errorMessage);
               setConversationState('error');
@@ -241,7 +243,7 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ onApiKeyError, apiK
       setErrorMessage(message);
       setConversationState('error');
     }
-  }, [stopConversation, addOrUpdateTranscript, finalizeLastTranscriptEntry, onApiKeyError, apiKey]);
+  }, [stopConversation, addOrUpdateTranscript, finalizeLastTranscriptEntry]);
 
   // Cleanup on unmount
   useEffect(() => {

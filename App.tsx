@@ -5,24 +5,11 @@
 import React, { useState } from 'react';
 import Chat from './components/Chat';
 import LiveConversation from './components/LiveConversation';
-import ApiKeyDialog from './components/ApiKeyDialog';
-import ImageGeneration from './components/ImageGeneration';
 
-type Mode = 'live' | 'chat' | 'image';
+type Mode = 'chat' | 'live';
 
 const App: React.FC = () => {
-  const [mode, setMode] = useState<Mode>('image');
-  const [apiKey, setApiKey] = useState<string>('');
-
-  const handleApiKeySubmit = (key: string) => {
-    setApiKey(key);
-  };
-
-  const handleApiKeyError = () => {
-    // This is called from child components when an API call fails due to an invalid key.
-    // Clear the key to show the dialog again.
-    setApiKey('');
-  };
+  const [mode, setMode] = useState<Mode>('chat');
 
   const ModeButton: React.FC<{
     current: Mode;
@@ -44,19 +31,13 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (mode) {
       case 'live':
-        return <LiveConversation apiKey={apiKey} onApiKeyError={handleApiKeyError} />;
+        return <LiveConversation />;
       case 'chat':
-        return <Chat apiKey={apiKey} onApiKeyError={handleApiKeyError} />;
-      case 'image':
-        return <ImageGeneration apiKey={apiKey} onApiKeyError={handleApiKeyError} />;
+        return <Chat />;
       default:
         return null;
     }
   };
-
-  if (!apiKey) {
-    return <ApiKeyDialog onContinue={handleApiKeySubmit} />;
-  }
 
   return (
     <div className="h-screen bg-black text-gray-200 flex flex-col font-sans overflow-hidden">
@@ -67,9 +48,6 @@ const App: React.FC = () => {
           </h1>
         </div>
         <div className="flex items-center gap-2 p-1 bg-gray-900 rounded-lg">
-          <ModeButton current={mode} target="image" onClick={setMode}>
-            Image
-          </ModeButton>
           <ModeButton current={mode} target="chat" onClick={setMode}>
             Chat
           </ModeButton>

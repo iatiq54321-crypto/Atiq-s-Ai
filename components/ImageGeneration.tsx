@@ -57,12 +57,10 @@ const uiStrings: Record<Language, Record<string, string>> = {
   }
 };
 
-interface ImageGenerationProps {
-  onApiKeyError: () => void;
-  apiKey: string;
-}
+// FIX: Remove apiKey and onApiKeyError props.
+interface ImageGenerationProps {}
 
-const ImageGeneration: React.FC<ImageGenerationProps> = ({ onApiKeyError, apiKey }) => {
+const ImageGeneration: React.FC<ImageGenerationProps> = () => {
   const [prompt, setPrompt] = useState('');
   const [state, setState] = useState<ImageGenState>(ImageGenState.IDLE);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -80,21 +78,22 @@ const ImageGeneration: React.FC<ImageGenerationProps> = ({ onApiKeyError, apiKey
     setImageUrl(null);
 
     try {
-      const base64Image = await generateImage(prompt, apiKey);
+      // FIX: Call generateImage without apiKey.
+      const base64Image = await generateImage(prompt);
       setImageUrl(`data:image/png;base64,${base64Image}`);
       setState(ImageGenState.SUCCESS);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      // FIX: Handle API key errors directly instead of calling onApiKeyError.
       if (
         errorMessage.includes('API key not valid') ||
         errorMessage.includes('API_KEY_INVALID') ||
         errorMessage.includes('Requested entity was not found.') ||
-        errorMessage.includes('accessible to billed users')
+        errorMessage.includes('accessible to billed users') ||
+        errorMessage.includes('API Key not found')
       ) {
-        onApiKeyError();
-        return;
-      }
-      if (errorMessage === 'IMAGE_GENERATION_SAFETY_BLOCK') {
+        setError('API key is invalid or missing. Please check your environment configuration.');
+      } else if (errorMessage === 'IMAGE_GENERATION_SAFETY_BLOCK') {
         setError(T.safetyError);
       } else {
         setError(`Image generation failed: ${errorMessage}`);

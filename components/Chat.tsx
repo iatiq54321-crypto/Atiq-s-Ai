@@ -8,12 +8,10 @@ import { generateImage } from '../services/geminiService';
 import { ChatMessage } from '../types';
 import { BotIcon, SendHorizonalIcon, UserIcon } from './icons';
 
-interface ChatComponentProps {
-  onApiKeyError: () => void;
-  apiKey: string;
-}
+// FIX: Remove apiKey and onApiKeyError props.
+interface ChatComponentProps {}
 
-const ChatComponent: React.FC<ChatComponentProps> = ({ onApiKeyError, apiKey }) => {
+const ChatComponent: React.FC<ChatComponentProps> = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -62,9 +60,11 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ onApiKeyError, apiKey }) 
   ) => {
     if (!firstMessageRef.current) return;
 
+    // FIX: Use process.env.API_KEY
+    const apiKey = process.env.API_KEY;
     if (!apiKey) {
       setError(
-        'API Key not found. Please provide an API key.',
+        'API Key not found. Please check your environment variables.',
       );
       setMessages((prev) => prev.filter((msg) => !msg.isLanguageSelector));
       return;
@@ -123,16 +123,17 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ onApiKeyError, apiKey }) 
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'An unknown error occurred.';
+      // FIX: Handle API key errors directly instead of calling onApiKeyError.
       if (
         errorMessage.includes('API key not valid') ||
         errorMessage.includes('API_KEY_INVALID') ||
         errorMessage.includes('Requested entity was not found.') ||
         errorMessage.includes('accessible to billed users')
       ) {
-        onApiKeyError();
-        return;
+        setError('API key is invalid. Please check your environment configuration.');
+      } else {
+        setError(`Failed to get response: ${errorMessage}`);
       }
-      setError(`Failed to get response: ${errorMessage}`);
       // Clean up empty model message bubble on error
       setMessages((prev) => {
         if (
@@ -197,9 +198,9 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ onApiKeyError, apiKey }) 
 
     if (!chatRef.current) {
       // This can happen if the API key was missing during language selection
-      if (!apiKey) {
+      if (!process.env.API_KEY) {
         setError(
-          'API Key not found. Please provide a valid API key.',
+          'API Key not found. Please check your environment variables.',
         );
       } else {
         setError('Chat is not initialized. Please select a language first.');
@@ -233,7 +234,8 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ onApiKeyError, apiKey }) 
       setMessages((prev) => [...prev, generatingMessage]);
 
       try {
-        const base64Image = await generateImage(imagePrompt, apiKey);
+        // FIX: Call generateImage without apiKey.
+        const base64Image = await generateImage(imagePrompt);
         const imageUrl = `data:image/png;base64,${base64Image}`;
         setMessages((prev) =>
           prev.map((msg) =>
@@ -246,13 +248,15 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ onApiKeyError, apiKey }) 
         const errorMessage =
           imgErr instanceof Error ? imgErr.message : 'Unknown error';
 
+        // FIX: Handle API key errors directly instead of calling onApiKeyError.
         if (
           errorMessage.includes('API key not valid') ||
           errorMessage.includes('API_KEY_INVALID') ||
           errorMessage.includes('Requested entity was not found.') ||
-          errorMessage.includes('accessible to billed users')
+          errorMessage.includes('accessible to billed users') ||
+          errorMessage.includes('API Key not found')
         ) {
-          onApiKeyError();
+          setError('API key is invalid or missing. Please check your environment configuration.');
           setMessages((prev) => prev.filter((m) => m !== generatingMessage));
           setIsLoading(false);
           return;
@@ -315,13 +319,14 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ onApiKeyError, apiKey }) 
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'An unknown error occurred.';
+        // FIX: Handle API key errors directly instead of calling onApiKeyError.
         if (
           errorMessage.includes('API key not valid') ||
           errorMessage.includes('API_KEY_INVALID') ||
           errorMessage.includes('Requested entity was not found.') ||
           errorMessage.includes('accessible to billed users')
         ) {
-          onApiKeyError();
+          setError('API key is invalid. Please check your environment configuration.');
         } else {
           setError(`Failed to get response: ${errorMessage}`);
         }
