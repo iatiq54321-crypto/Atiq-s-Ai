@@ -9,13 +9,8 @@ import {
 export const generateImage = async (prompt: string): Promise<string> => {
   console.log('Starting image generation with prompt:', prompt);
   
-  const API_KEY = import.meta.env.VITE_API_KEY;
-
-  if (!API_KEY) {
-    throw new Error('API key is missing.');
-  }
-
-  const ai = new GoogleGenAI({apiKey: API_KEY});
+  // FIX: Use process.env.API_KEY directly as per guidelines.
+  const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
 
   try {
     const response = await ai.models.generateImages({

@@ -5,9 +5,8 @@
 import React, { useState } from 'react';
 import Chat from './components/Chat';
 import LiveConversation from './components/LiveConversation';
-import ImageGeneration from './components/ImageGeneration';
 
-type Mode = 'live' | 'chat' | 'image';
+type Mode = 'live' | 'chat';
 
 const App: React.FC = () => {
   const [mode, setMode] = useState<Mode>('chat');
@@ -35,8 +34,6 @@ const App: React.FC = () => {
         return <LiveConversation />;
       case 'chat':
         return <Chat />;
-      case 'image':
-        return <ImageGeneration />;
       default:
         return null;
     }
@@ -56,9 +53,6 @@ const App: React.FC = () => {
           </ModeButton>
           <ModeButton current={mode} target="live" onClick={setMode}>
             Live Conversation
-          </ModeButton>
-          <ModeButton current={mode} target="image" onClick={setMode}>
-            Image Generation
           </ModeButton>
         </div>
       </header>

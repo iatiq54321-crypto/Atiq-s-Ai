@@ -108,17 +108,6 @@ const LiveConversation: React.FC = () => {
   }, []);
 
   const startConversation = useCallback(async () => {
-    // FIX: Get API_KEY from Vite's env variables.
-    const API_KEY = import.meta.env.VITE_API_KEY;
-    if (!API_KEY) {
-      setErrorMessage(
-        // FIX: Updated error message to be more generic.
-        'API key is missing.',
-      );
-      setConversationState('error');
-      return;
-    }
-    
     setConversationState('connecting');
     setErrorMessage(null);
     setTranscript([]);
@@ -128,7 +117,8 @@ const LiveConversation: React.FC = () => {
       const stream = await navigator.mediaDevices.getUserMedia({audio: true});
       mediaStreamRef.current = stream;
 
-      const ai = new GoogleGenAI({apiKey: API_KEY});
+      // FIX: Use process.env.API_KEY directly as per guidelines.
+      const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
       
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       inputAudioContextRef.current = new AudioContext({sampleRate: 16000});
